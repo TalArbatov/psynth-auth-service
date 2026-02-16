@@ -24,7 +24,7 @@ export const requireAuth = async (req: FastifyRequest, _res: FastifyReply) => {
     }
 
     const accountEntityGateway = req.appProfile.getAccountEntityGateway();
-    const user = await accountEntityGateway.find(session.getUserId());
+    const user = await accountEntityGateway.find(session.getAccountId());
 
     if (!user) {
         throw new UnauthorizedError();

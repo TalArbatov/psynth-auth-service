@@ -1,8 +1,6 @@
 import { AccountEntityGateway } from "../../app/ports/account-entity-gateway";
 import { SessionEntityGateway } from "../../app/ports/session-entity-gateway";
-import { PostgresqlDB } from "../../data-persistence/postgresql";
-import { Pool } from 'pg';
-import { AccountEntityType, SessionEntityType } from "../../types";
+import { DrizzleDB } from "../config";
 import { AccountPostgresEntityGateway } from "../../adapters/postgres-gateways/account-postgres-entity-gateway";
 import { SessionPostgresEntityGateway } from "../../adapters/postgres-gateways/session-postgres-entity-gateway";
 import { CreateAccountUseCase } from "../../app/use-cases/create-account-use-case";
@@ -10,26 +8,22 @@ import { LoginUseCase } from "../../app/use-cases/login-use-case";
 import { LogoutUseCase } from "../../app/use-cases/logout-use-case";
 
 type Config = {
-    pgPool: Pool;
+    db: DrizzleDB;
 };
 
 abstract class AppProfile {
-    private readonly pgPool: Pool;
+    private readonly db: DrizzleDB;
 
     public constructor(config: Config) {
-        this.pgPool = config.pgPool;
+        this.db = config.db;
     }
 
     public getAccountEntityGateway(): AccountEntityGateway {
-        const postgresqlDb = new PostgresqlDB<AccountEntityType>(this.pgPool, "accounts")
-
-        return new AccountPostgresEntityGateway(postgresqlDb);
+        return new AccountPostgresEntityGateway(this.db);
     }
 
     public getSessionEntityGateway(): SessionEntityGateway {
-        const postgresqlDb = new PostgresqlDB<SessionEntityType>(this.pgPool, "sessions")
-
-        return new SessionPostgresEntityGateway(postgresqlDb);
+        return new SessionPostgresEntityGateway(this.db);
     }
 
     public getCreateAccountUseCase(): CreateAccountUseCase {

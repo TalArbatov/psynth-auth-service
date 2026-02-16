@@ -42,7 +42,7 @@ class LoginUseCase {
         }
 
         const session = new SessionEntity({
-            userId: account.getId(),
+            accountId: account.getId(),
             ip: ip ?? null,
             userAgent: userAgent ?? null,
         });

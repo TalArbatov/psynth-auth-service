@@ -22,7 +22,7 @@ describe("authLoginHandler", () => {
 
     it("should call loginUseCase, set cookie, and return 200 with user object", async () => {
         const mockAccount = new AccountEntity("account-123");
-        const mockSession = new SessionEntity({ userId: "account-123" });
+        const mockSession = new SessionEntity({ accountId: "account-123" });
 
         const execute = vi.fn().mockResolvedValue({ account: mockAccount, session: mockSession });
 

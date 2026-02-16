@@ -11,13 +11,18 @@ import cors from '@fastify/cors'
 import cookie from "@fastify/cookie";
 
 
+const LOCAL_DEV_ORIGIN_REGEX = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d{1,5})?$/;
+
 const allowed = new Set([
-    "http://localhost:5174",
-    "http://127.0.0.1:5174",
-    "http://psyth.talarbetov.com",
+    "http://psynth.talarbetov.com",
     "http://talarbetov.com",
     "http://www.talarbetov.com",
 ]);
+
+const isAllowedOrigin = (origin: string): boolean => {
+    if (LOCAL_DEV_ORIGIN_REGEX.test(origin)) return true;
+    return allowed.has(origin);
+};
 
 
 const registerRequestHandlers = (app: FastifyInstance) => {
@@ -52,14 +57,30 @@ const registerPlugins = async (app: FastifyInstance): Promise<void> => {
             // allow non-browser tools (curl/postman) that send no Origin
             if (!origin) return cb(null, true);
 
-            if (allowed.has(origin)) return cb(null, true);
+            if (isAllowedOrigin(origin)) return cb(null, true);
 
             cb(new Error("Not allowed by CORS"), false);
         },
         credentials: true,
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"],
     });
+
+    // Defensive fallback: ensure CORS headers exist on all responses
+    // (including error/not-found flows) for explicitly allowed origins.
+    app.addHook("onSend", async (req, reply, payload) => {
+        const origin = req.headers.origin;
+        if (!origin || !isAllowedOrigin(origin)) return payload;
+
+        if (!reply.hasHeader("Access-Control-Allow-Origin")) {
+            reply.header("Access-Control-Allow-Origin", origin);
+        }
+        if (!reply.hasHeader("Access-Control-Allow-Credentials")) {
+            reply.header("Access-Control-Allow-Credentials", "true");
+        }
+
+        return payload;
+    });
+
     await app.register(sensible)
 
     await app.register(cookie)
@@ -70,7 +91,7 @@ const registerPlugins = async (app: FastifyInstance): Promise<void> => {
 const createServer = async (): Promise<FastifyInstance> => {
     const app = Fastify({ logger: true });
 
-    const config = { pgPool: Config.getPostgresPool() }
+    const config = { db: Config.getDrizzle() }
 
     const appProfile = new LocalAppProfile(config);
 

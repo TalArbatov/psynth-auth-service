@@ -22,7 +22,7 @@ describe("authRegisterHandler", () => {
 
     it("should create account, create session cookie, and return 201 with user object", async () => {
         const mockAccount = new AccountEntity("account-123");
-        const mockSession = new SessionEntity({ userId: "account-123" });
+        const mockSession = new SessionEntity({ accountId: "account-123" });
 
         const createExecute = vi.fn().mockResolvedValue(mockAccount);
         const loginExecute = vi.fn().mockResolvedValue({ account: mockAccount, session: mockSession });

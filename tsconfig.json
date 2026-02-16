@@ -103,5 +103,6 @@
     "exclude": [
         "test",
         "**/*.test.ts",
+        "drizzle.config.ts"
     ]
 }

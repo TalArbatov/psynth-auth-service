@@ -75,7 +75,7 @@ describe("LoginUseCase", () => {
         expect(bcrypt.compare).toHaveBeenCalledWith("my-secret", "$2b$10$hashedpassword");
         expect(result.account).toBe(mockAccount);
         expect(result.session).toBeInstanceOf(SessionEntity);
-        expect(result.session.getUserId()).toBe("account-123");
+        expect(result.session.getAccountId()).toBe("account-123");
         expect(mockSessionGateway.save).toHaveBeenCalledWith(result.session);
     });
 

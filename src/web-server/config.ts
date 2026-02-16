@@ -1,6 +1,8 @@
 import "dotenv/config";
 import config from "config";
 import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+import * as schema from "../db/schema";
 
 const once = <T>(cb: () => T): (() => T) => {
     let t: undefined | T;
@@ -11,6 +13,8 @@ const once = <T>(cb: () => T): (() => T) => {
 };
 
 export { once };
+
+export type DrizzleDB = ReturnType<typeof drizzle<typeof schema>>;
 
 const Config = {
     get(key: string): any {
@@ -37,6 +41,10 @@ const Config = {
         });
 
         return pool;
+    }),
+
+    getDrizzle: once((): DrizzleDB => {
+        return drizzle(Config.getPostgresPool(), { schema });
     }),
 
     closePostgresPool: async (): Promise<void> => {

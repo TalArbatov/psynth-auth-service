@@ -4,7 +4,7 @@ const SESSION_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 class SessionEntity {
     private readonly id: string;
-    private readonly userId: string;
+    private readonly accountId: string;
     private readonly ip: string | null;
     private readonly userAgent: string | null;
     private readonly createdAt: Date;
@@ -13,7 +13,7 @@ class SessionEntity {
 
     public constructor(opts: {
         id?: string;
-        userId: string;
+        accountId: string;
         ip?: string | null;
         userAgent?: string | null;
         createdAt?: Date;
@@ -21,7 +21,7 @@ class SessionEntity {
         revokedAt?: Date | null;
     }) {
         this.id = opts.id ?? crypto.randomBytes(32).toString('hex');
-        this.userId = opts.userId;
+        this.accountId = opts.accountId;
         this.ip = opts.ip ?? null;
         this.userAgent = opts.userAgent ?? null;
         this.createdAt = opts.createdAt ?? new Date();
@@ -33,8 +33,8 @@ class SessionEntity {
         return this.id;
     }
 
-    public getUserId(): string {
-        return this.userId;
+    public getAccountId(): string {
+        return this.accountId;
     }
 
     public getIp(): string | null {

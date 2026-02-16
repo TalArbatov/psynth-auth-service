@@ -23,7 +23,7 @@ describe("loginHandler (deprecated)", () => {
 
     it("should call loginUseCase and return 200 with mapped API object", async () => {
         const mockAccount = new AccountEntity();
-        const mockSession = new SessionEntity({ userId: mockAccount.getId() });
+        const mockSession = new SessionEntity({ accountId: mockAccount.getId() });
         const execute = vi.fn().mockResolvedValue({ account: mockAccount, session: mockSession });
 
         const req: any = {

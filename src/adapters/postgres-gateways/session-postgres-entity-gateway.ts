@@ -1,64 +1,57 @@
-import { SessionEntityType } from '../../types';
+import { eq, sql } from "drizzle-orm";
 import { SessionEntityGateway } from "../../app/ports/session-entity-gateway";
-import { PostgresqlDB } from "../../data-persistence/postgresql";
 import { SessionEntity } from "../../app/entities/session-entity";
+import { loginSessions } from "../../db/schema";
+import { DrizzleDB } from "../../web-server/config";
 
-const mapRowToEntity = (row: SessionEntityType): SessionEntity => {
+type SessionRow = typeof loginSessions.$inferSelect;
+
+const mapRowToEntity = (row: SessionRow): SessionEntity => {
     return new SessionEntity({
         id: row.id,
-        userId: row.user_id,
+        accountId: row.userId,
         ip: row.ip,
-        userAgent: row.user_agent,
-        createdAt: new Date(row.created_at),
-        expiresAt: new Date(row.expires_at),
-        revokedAt: row.revoked_at ? new Date(row.revoked_at) : null,
+        userAgent: row.userAgent,
+        createdAt: row.createdAt!,
+        expiresAt: row.expiresAt,
+        revokedAt: row.revokedAt ?? null,
     });
 };
 
-const mapEntityToRow = (session: SessionEntity): SessionEntityType => {
-    return {
-        id: session.getId(),
-        user_id: session.getUserId(),
-        ip: session.getIp(),
-        user_agent: session.getUserAgent(),
-        created_at: session.getCreatedAt().toISOString(),
-        expires_at: session.getExpiresAt().toISOString(),
-        revoked_at: session.getRevokedAt()?.toISOString() ?? null,
-    };
-};
-
 class SessionPostgresEntityGateway implements SessionEntityGateway {
-    private readonly db: PostgresqlDB<SessionEntityType>;
+    private readonly db: DrizzleDB;
 
-    public constructor(db: PostgresqlDB<SessionEntityType>) {
+    public constructor(db: DrizzleDB) {
         this.db = db;
     }
 
     async save(session: SessionEntity): Promise<void> {
-        await this.db.create(mapEntityToRow(session));
+        await this.db.insert(loginSessions).values({
+            id: session.getId(),
+            userId: session.getAccountId(),
+            ip: session.getIp(),
+            userAgent: session.getUserAgent(),
+            createdAt: session.getCreatedAt(),
+            expiresAt: session.getExpiresAt(),
+            revokedAt: session.getRevokedAt(),
+        });
     }
 
     async findById(id: string): Promise<SessionEntity | null> {
-        const result = await this.db.find(id);
-
-        if (result)
-            return mapRowToEntity(result);
-        else
-            return null;
+        const rows = await this.db.select().from(loginSessions).where(eq(loginSessions.id, id));
+        return rows.length > 0 ? mapRowToEntity(rows[0]) : null;
     }
 
     async revoke(id: string): Promise<void> {
-        await this.db.query(
-            'UPDATE sessions SET revoked_at = NOW() WHERE id = $1',
-            [id]
-        );
+        await this.db.update(loginSessions)
+            .set({ revokedAt: sql`NOW()` })
+            .where(eq(loginSessions.id, id));
     }
 
     async extendExpiry(id: string, newExpiresAt: Date): Promise<void> {
-        await this.db.query(
-            'UPDATE sessions SET expires_at = $1 WHERE id = $2',
-            [newExpiresAt.toISOString(), id]
-        );
+        await this.db.update(loginSessions)
+            .set({ expiresAt: newExpiresAt })
+            .where(eq(loginSessions.id, id));
     }
 }
 

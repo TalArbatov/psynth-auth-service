@@ -1,25 +1,25 @@
 #!/bin/bash
 
-# script to create a postgres container, init db, tables and seed mock data
+script to create a postgres container, init db, tables and seed mock data
 
-# echo "Running init script..."
+echo "Running init script..."
 
-# docker stop psynth-pg
+docker stop psynth-db
 
-# docker rm psynth-pg 
+docker rm psynth-db
 
-# docker run --name psynth-pg -e POSTGRES_PASSWORD=password --network api-net -d -p 5432:5432 postgres
+docker run --name psynth-db -e POSTGRES_PASSWORD=password --network api-net -d -p 5432:5432 postgres
 
 
-# # Wait for Postgres to be ready
-# echo "Waiting for Postgres to start..."
-# until docker exec psynth-pg pg_isready -U postgres > /dev/null 2>&1; do
-#   sleep 1
-# done
+# Wait for Postgres to be ready
+echo "Waiting for Postgres to start..."
+until docker exec psynth-db pg_isready -U postgres > /dev/null 2>&1; do
+  sleep 1
+done
 
-# echo "Postgres container started."
+echo "Postgres container started."
 
 # Run the SQL command
-docker exec -i psynth-db psql -U postgres -d psynth -a < ./scripts/init/seed.sql
+docker exec -i psynth-db psql -U postgres -a < ./scripts/init/seed.sql
 
 echo "Done."
