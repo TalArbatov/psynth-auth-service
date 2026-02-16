@@ -1,0 +1,35 @@
+{
+    "name": "bondsports-api",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "start": "node dist/web-server",
+        "build": "rm -rf dist && tsc",
+        "dev": "concurrently \"tsc --watch\" \"nodemon dist/web-server\"",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "coverage": "vitest run --coverage"
+    },
+    "keywords": [],
+    "author": "Tal Arbetov",
+    "license": "MIT",
+    "description": "Bondsports Assignemnt",
+    "devDependencies": {
+        "@types/config": "^3.3.5",
+        "@types/node": "^25.0.9",
+        "@types/pg": "^8.16.0",
+        "@vitest/coverage-v8": "^4.0.17",
+        "concurrently": "^9.2.1",
+        "nodemon": "^3.1.11",
+        "typescript": "^5.9.3",
+        "vitest": "^4.0.17"
+    },
+    "dependencies": {
+        "@fastify/sensible": "^6.0.4",
+        "config": "^4.2.0",
+        "dotenv": "^17.2.3",
+        "fastify": "^5.7.1",
+        "nanoid": "^3.3.4",
+        "pg": "^8.17.1"
+    }
+}
