@@ -1,33 +1,23 @@
 import { AccountEntityGateway } from "../../app/ports/account-entity-gateway";
+import { SessionEntityGateway } from "../../app/ports/session-entity-gateway";
 import { PostgresqlDB } from "../../data-persistence/postgresql";
-import { Client, Pool } from 'pg';
-import { AccountEntityType, TransactionEntityType } from "../../types";
+import { Pool } from 'pg';
+import { AccountEntityType, SessionEntityType } from "../../types";
 import { AccountPostgresEntityGateway } from "../../adapters/postgres-gateways/account-postgres-entity-gateway";
-import { TransactionPostgresEntityGateway } from "../../adapters/postgres-gateways/transaction-postgres-entity-gateway";
-import { DepositToAccountUseCase } from "../../app/use-cases/deposit-use-case";
-import { PostgresTransactionManager } from "../../adapters/transaction-managers/postgres-transaction-manager";
-import { TransactionManager } from "../../app/ports/transaction-manager";
-import { WithdrawFromAccountUseCase } from "../../app/use-cases/withdraw-use-case";
+import { SessionPostgresEntityGateway } from "../../adapters/postgres-gateways/session-postgres-entity-gateway";
+import { CreateAccountUseCase } from "../../app/use-cases/create-account-use-case";
+import { LoginUseCase } from "../../app/use-cases/login-use-case";
+import { LogoutUseCase } from "../../app/use-cases/logout-use-case";
 
-// TODO: in memory DB
 type Config = {
     pgPool: Pool;
 };
 
 abstract class AppProfile {
     private readonly pgPool: Pool;
-    private readonly txManager: TransactionManager;
+
     public constructor(config: Config) {
         this.pgPool = config.pgPool;
-        this.txManager = new PostgresTransactionManager(config.pgPool)
-    }
-
-    public getDepositUseCase(): DepositToAccountUseCase {
-        return new DepositToAccountUseCase(this.txManager)
-    }
-
-    public getWithdrawUseCase(): WithdrawFromAccountUseCase {
-        return new WithdrawFromAccountUseCase(this.txManager)
     }
 
     public getAccountEntityGateway(): AccountEntityGateway {
@@ -35,10 +25,23 @@ abstract class AppProfile {
 
         return new AccountPostgresEntityGateway(postgresqlDb);
     }
-    public getTransactionEntityGateway(): TransactionPostgresEntityGateway {
-        const postgresqlDb = new PostgresqlDB<TransactionEntityType>(this.pgPool, "transactions")
 
-        return new TransactionPostgresEntityGateway(postgresqlDb);
+    public getSessionEntityGateway(): SessionEntityGateway {
+        const postgresqlDb = new PostgresqlDB<SessionEntityType>(this.pgPool, "sessions")
+
+        return new SessionPostgresEntityGateway(postgresqlDb);
+    }
+
+    public getCreateAccountUseCase(): CreateAccountUseCase {
+        return new CreateAccountUseCase(this.getAccountEntityGateway());
+    }
+
+    public getLoginUseCase(): LoginUseCase {
+        return new LoginUseCase(this.getAccountEntityGateway(), this.getSessionEntityGateway());
+    }
+
+    public getLogoutUseCase(): LogoutUseCase {
+        return new LogoutUseCase(this.getSessionEntityGateway());
     }
 }
 

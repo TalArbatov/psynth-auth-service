@@ -1,13 +1,11 @@
 import { FastifyRequest, FastifyReply, RouteGenericInterface } from 'fastify';
-import { AccountEntity } from "../../app/entities/account-entity";
-import { ServerError, GeneralError } from '../utils/server-error';
 import { mapAccountEntityToApiObject, AccountApiObject } from '../../adapters/mappers/account-entity';
 
 interface RequestBody {
-    personId: string;
-    dailyWithdrawlLimit?: number;
+    username: string;
+    password: string;
+    email: string;
     activeFlag?: boolean;
-    accountType?: number // TODO
 }
 
 interface CreateAccountRoute extends RouteGenericInterface {
@@ -18,36 +16,13 @@ interface CreateAccountRoute extends RouteGenericInterface {
 }
 
 const createAccountHandler = async (req: FastifyRequest<CreateAccountRoute>, res: FastifyReply<CreateAccountRoute>) => {
-    const {
-        personId,
-        dailyWithdrawlLimit = 1000, // rm business logic from handler
-        activeFlag = true,
-        accountType = 0,
-    } = req.body;
+    const { username, password, email, activeFlag } = req.body;
 
-    const accountEntityGateway = req.appProfile.getAccountEntityGateway();
+    const createAccountUseCase = req.appProfile.getCreateAccountUseCase();
 
-    const accountEntity = new AccountEntity();
-
-    // validate accout not existing
-
-    accountEntity.setPersonId(personId);
-    accountEntity.setBalance(0)
-    accountEntity.setDailyWithdrawlLimit(dailyWithdrawlLimit)
-    accountEntity.setAccountType(accountType)
-    accountEntity.setActiveFlag(activeFlag)
-    accountEntity.setCreatedTimestamp(Date.now())
-
-    try {
-        await accountEntityGateway.save(accountEntity)
-    } catch (e) {
-        throw new GeneralError("Error creating account", { accountEntity })
-    }
-
-    // TODO: how to respond
+    const accountEntity = await createAccountUseCase.execute({ username, password, email, activeFlag });
 
     res.code(201).send(mapAccountEntityToApiObject(accountEntity))
-
 }
 
 export { createAccountHandler }

@@ -7,7 +7,8 @@ const main = async () => {
     const app = await createServer();
 
     app.listen({
-        port
+        port,
+        host: '0.0.0.0'
     }, () => {
         console.log(`listening on port ${port}`);
     });

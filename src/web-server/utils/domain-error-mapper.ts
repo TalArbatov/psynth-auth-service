@@ -6,7 +6,7 @@ import {
 } from "./server-error";
 
 // Import your domain errors
-import { InvalidAmountError, AccountBlockedError, ResourceNotFoundError } from '../../app/errors/account-errors';
+import { InvalidAmountError, AccountBlockedError, ResourceNotFoundError, InvalidCredentialsError } from '../../app/errors/account-errors';
 import { InvalidTransactionAmountError } from "../../app/errors/transaction-errors";
 
 /**
@@ -29,6 +29,16 @@ export function mapDomainErrorToServerError(err: DomainError): ServerError {
         return new ServerError({
             message: err.message,
             statusCode: 400,
+            code: err.code,
+            expose: true,
+            cause: err,
+        });
+    }
+
+    if (err instanceof InvalidCredentialsError) {
+        return new ServerError({
+            message: err.message,
+            statusCode: 401,
             code: err.code,
             expose: true,
             cause: err,

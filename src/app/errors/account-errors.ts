@@ -39,3 +39,11 @@ export class DailyLimitExceededError extends DomainError {
         this.name = "DailyLimitExceededError";
     }
 }
+
+export class InvalidCredentialsError extends DomainError {
+    public readonly code = "INVALID_CREDENTIALS";
+    constructor() {
+        super("Invalid username or password.");
+        this.name = "InvalidCredentialsError";
+    }
+}

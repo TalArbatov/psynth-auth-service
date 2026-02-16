@@ -6,43 +6,43 @@ import { AccountEntity } from "../../app/entities/account-entity";
 const mapRowToEntry = (value: AccountEntityType): AccountEntity => {
     const {
         id,
-        person_id,
-        balance,
-        daily_withdrawl_limit,
+        username,
+        email,
+        password_hash,
         active_flag,
-        account_type,
-        created_at
+        created_at,
+        updated_at
     } = value;
 
     const accountEntity = new AccountEntity(id);
 
-    accountEntity.setPersonId(person_id);
-    accountEntity.setBalance(balance);
-    accountEntity.setDailyWithdrawlLimit(daily_withdrawl_limit);
+    accountEntity.setUsername(username);
+    accountEntity.setEmail(email);
+    accountEntity.setPasswordHash(password_hash);
     accountEntity.setActiveFlag(active_flag);
-    accountEntity.setAccountType(account_type);
-    accountEntity.setCreatedTimestamp(Date.parse(created_at))
+    accountEntity.setCreatedTimestamp(Date.parse(created_at));
+    accountEntity.setUpdatedTimestamp(Date.parse(updated_at));
 
     return accountEntity;
 };
 
 const mapEntryToRow = (accountEntity: AccountEntity): AccountEntityType => {
     const id = accountEntity.getId();
-    const person_id = accountEntity.getPersonId();
-    const balance = accountEntity.getBalance();
-    const daily_withdrawl_limit = accountEntity.getDailyWithdrawlLimit();
+    const username = accountEntity.getUsername();
+    const email = accountEntity.getEmail();
+    const password_hash = accountEntity.getPasswordHash();
     const active_flag = accountEntity.isActive();
-    const account_type = accountEntity.getAccountType();
     const created_at = new Date(accountEntity.getCreatedTimestamp()).toISOString();
+    const updated_at = new Date(accountEntity.getUpdatedTimestamp()).toISOString();
 
     return {
         id,
-        person_id,
-        balance,
-        daily_withdrawl_limit,
+        username,
+        email,
+        password_hash,
         active_flag,
-        account_type,
-        created_at
+        created_at,
+        updated_at
     }
 };
 
@@ -70,6 +70,24 @@ class AccountPostgresEntityGateway implements AccountEntityGateway {
         else
             return null;
 
+    }
+
+    async findByUsername(username: string): Promise<AccountEntity | null> {
+        const result = await this.db.get({ key: 'username', value: username });
+
+        if (result.length > 0)
+            return mapRowToEntry(result[0]);
+        else
+            return null;
+    }
+
+    async findByEmail(email: string): Promise<AccountEntity | null> {
+        const result = await this.db.get({ key: 'email', value: email });
+
+        if (result.length > 0)
+            return mapRowToEntry(result[0]);
+        else
+            return null;
     }
 
     async save(accountEntity: AccountEntity): Promise<void> {

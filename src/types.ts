@@ -23,18 +23,22 @@ export type Entity = {
 
 // correlates to x entities as they're saved in any data persistance layer
 export type AccountEntityType = Entity & {
-    person_id: string;
-    balance: number;
-    daily_withdrawl_limit: number;
+    username: string;
+    email: string;
+    password_hash: string;
     active_flag: boolean;
-    account_type: number;
     created_at: string;
+    updated_at: string;
 };
 
-export type TransactionEntityType = Entity & {
-    account_id: string;
-    amount: number;
+
+export type SessionEntityType = Entity & {
+    user_id: string;
+    ip: string | null;
+    user_agent: string | null;
     created_at: string;
+    expires_at: string;
+    revoked_at: string | null;
 };
 
 export type ErrorResponse = {

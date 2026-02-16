@@ -7,11 +7,11 @@ interface AccountEntityGateway {
 
     find(accountId: string): Promise<AccountEntity | null>;
 
+    findByUsername(username: string): Promise<AccountEntity | null>;
+
+    findByEmail(email: string): Promise<AccountEntity | null>;
+
     update(accountId: string, accountEntity: AccountEntity): Promise<void>;
-
-    // block(): Promise<void>;
-
-    // delete(id: string): Promise<void>;
 }
 
 export { AccountEntityGateway };

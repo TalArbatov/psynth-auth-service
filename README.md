@@ -1,4 +1,4 @@
-# **Bondsports API assignemnt**
+# **Psynth account service**
 
 This repository contains an implementation of the provided assignment.
 

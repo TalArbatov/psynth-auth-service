@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git ls-tree:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vitest run:*)",
+      "Bash(npm run build:*)",
+      "Bash(/Users/tal/dev/psyth-account-service/scripts/create-account.sh:*)",
+      "Bash(chmod:*)"
+    ]
+  }
+}

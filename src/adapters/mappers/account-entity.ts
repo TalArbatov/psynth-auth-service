@@ -2,22 +2,19 @@ import { AccountEntity } from "../../app/entities/account-entity";
 
 export type AccountApiObject = {
     id: string;
-    personId: string;
-    balance: number;
-    dailyWithdrawlLimit: number;
-    accountType: number;
-    createdTimestamp: number;
+    username: string;
+    email: string;
+    createdAt: number;
+    updatedAt: number;
 }
 
 const mapAccountEntityToApiObject = (accountEntity: AccountEntity): AccountApiObject => {
     return {
         id: accountEntity.getId(),
-        personId: accountEntity.getPersonId(),
-        balance: accountEntity.getBalance(),
-        dailyWithdrawlLimit: accountEntity.getDailyWithdrawlLimit(),
-        accountType: accountEntity.getAccountType(),
-        // isActive: accountEntity.isActive()
-        createdTimestamp: accountEntity.getCreatedTimestamp()
+        username: accountEntity.getUsername(),
+        email: accountEntity.getEmail(),
+        createdAt: accountEntity.getCreatedTimestamp(),
+        updatedAt: accountEntity.getUpdatedTimestamp(),
     }
 }
 

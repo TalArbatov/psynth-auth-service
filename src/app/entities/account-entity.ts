@@ -4,11 +4,13 @@ import { InvalidAmountError, AccountBlockedError, InsufficientFundsError, DailyL
 class AccountEntity extends Entity {
     private username: string = "";
 
+    private email: string = "";
+
     private passwordHash: string = "";
 
     private activeFlag: boolean = true;
 
-    private createdTimestamp: number = Date.now();
+    private createdAt: number = Date.now();
 
     private updatedAt: number = Date.now();
 
@@ -20,6 +22,10 @@ class AccountEntity extends Entity {
         this.username = username;
     }
 
+    public setEmail(email: string): void {
+        this.email = email;
+    }
+
     public setPasswordHash(passwordHash: string): void {
         this.passwordHash = passwordHash;
     }
@@ -29,16 +35,19 @@ class AccountEntity extends Entity {
     }
 
     public setCreatedTimestamp(timestamp: number): void {
-        this.createdTimestamp = timestamp;
+        this.createdAt = timestamp;
     }
 
-    public setUpdatedAt(timestamp: number): void {
+    public setUpdatedTimestamp(timestamp: number): void {
         this.updatedAt = timestamp;
     }
 
 
     public getUsername(): string {
         return this.username;
+    }
+    public getEmail(): string {
+        return this.email;
     }
     public getPasswordHash(): string {
         return this.passwordHash;
@@ -47,9 +56,9 @@ class AccountEntity extends Entity {
         return this.activeFlag;
     }
     public getCreatedTimestamp(): number {
-        return this.createdTimestamp;
+        return this.createdAt;
     }
-    public getUpdatedAt(): number {
+    public getUpdatedTimestamp(): number {
         return this.updatedAt;
     }
 
