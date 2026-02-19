@@ -1,7 +1,10 @@
 import Fastify, { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 import { LocalAppProfile } from "./app-profile/local-app-profile";
 import { Config } from "./config";
 import { routes } from "./utils/routes";
+import { routeSchemas } from "./utils/schemas";
 import * as requestHandlers from "./request-handlers/index";
 import { AppProfile } from "./app-profile/app-profile";
 import sensible from "@fastify/sensible";
@@ -25,20 +28,19 @@ const isAllowedOrigin = (origin: string): boolean => {
 
 
 const registerRequestHandlers = (app: FastifyInstance) => {
-    app.get(routes.heartbeat, (_: FastifyRequest, res: FastifyReply) => { res.send(1) });
+    // Health
+    app.get(routes.health, (_: FastifyRequest, res: FastifyReply) => { res.send(1) });
+    app.get(routes.api.v1.health, (_: FastifyRequest, res: FastifyReply) => { res.send(1) });
 
-    app.post(routes.accounts.create, requestHandlers.createAccountHandler)
+    // Accounts
+    app.post(routes.api.v1.accounts.register, { schema: routeSchemas.register }, requestHandlers.authRegisterHandler)
+    app.get(routes.api.v1.accounts.me, { preHandler: [requireAuth], schema: routeSchemas.accountsMe }, requestHandlers.accountsMeHandler)
+    app.patch(routes.api.v1.accounts.me, { preHandler: [requireAuth], schema: routeSchemas.updateAccount }, requestHandlers.updateAccountHandler)
 
-    app.post(routes.accounts.block, { preHandler: [requireAuth] }, requestHandlers.blockAccountHandler)
-
-    // Auth routes
-    app.post(routes.auth.register, requestHandlers.authRegisterHandler)
-
-    app.post(routes.auth.login, requestHandlers.authLoginHandler)
-
-    app.post(routes.auth.logout, requestHandlers.authLogoutHandler)
-
-    app.get(routes.auth.me, { preHandler: [requireAuth] }, requestHandlers.authMeHandler)
+    // Auth
+    app.post(routes.api.v1.auth.login, { schema: routeSchemas.login }, requestHandlers.authLoginHandler)
+    app.post(routes.api.v1.auth.logout, { schema: routeSchemas.logout }, requestHandlers.authLogoutHandler)
+    app.get(routes.api.v1.auth.me, { schema: routeSchemas.authMe }, requestHandlers.authMeHandler)
 };
 
 
@@ -51,6 +53,31 @@ const registerAppProfile = (app: FastifyInstance, appProfile: AppProfile): void 
 };
 
 const registerPlugins = async (app: FastifyInstance): Promise<void> => {
+    await app.register(swagger, {
+        openapi: {
+            info: {
+                title: "Psynth Identity Service",
+                description: "Authentication and identity management API",
+                version: "1.0.0",
+            },
+            tags: [
+                { name: "accounts", description: "Account management" },
+                { name: "auth", description: "Authentication" },
+            ],
+            components: {
+                securitySchemes: {
+                    cookieAuth: {
+                        type: "apiKey",
+                        in: "cookie",
+                        name: "sid",
+                    },
+                },
+            },
+        },
+    });
+
+    await app.register(swaggerUi, { routePrefix: "/docs" });
+
     app.addHook("onRequest", async (req: FastifyRequest, reply: FastifyReply) => {
         const origin = req.headers.origin;
 
@@ -77,7 +104,12 @@ const registerPlugins = async (app: FastifyInstance): Promise<void> => {
 }
 
 const createServer = async (): Promise<FastifyInstance> => {
-    const app = Fastify({ logger: true });
+    const app = Fastify({
+        logger: true,
+        ajv: {
+            customOptions: { keywords: ["example"] },
+        },
+    });
 
     const config = { db: Config.getDrizzle() }
 

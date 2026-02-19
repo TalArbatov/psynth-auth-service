@@ -1,0 +1,14 @@
+{
+    // Prevent VS Code from reviving old terminal processes/tabs
+    "terminal.integrated.persistentSessionReviveProcess": "never",
+    // Optional: make sure the base shell is zsh
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    // Give the built-in zsh profile a white icon/color
+    "terminal.integrated.profiles.osx": {
+        "zsh": {
+            "path": "zsh",
+            "icon": "terminal",
+            "color": "terminal.ansiWhite"
+        }
+    }
+}

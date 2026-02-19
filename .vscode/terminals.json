@@ -1,0 +1,37 @@
+{
+    "autorun": true,
+    "autokill": false,
+    "shellPath": "/bin/zsh",
+    "shellArgs": [
+        "-l"
+    ],
+    "terminals": [
+        {
+            "name": "zsh",
+            "icon": "terminal",
+            "color": "terminal.ansiWhite",
+            "command": "",
+            "open": true,
+            "focus": true,
+            "recycle": false
+        },
+        {
+            "name": "Claude",
+            "icon": "star-full",
+            "color": "terminal.ansiGreen",
+            "command": "claude",
+            "open": true,
+            "focus": false,
+            "recycle": false
+        },
+        {
+            "name": "codex",
+            "icon": "lightbulb",
+            "color": "terminal.ansiYellow",
+            "command": "codex",
+            "open": true,
+            "focus": false,
+            "recycle": false
+        }
+    ]
+}

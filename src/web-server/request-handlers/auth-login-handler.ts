@@ -28,9 +28,6 @@ const authLoginHandler = async (req: FastifyRequest<AuthLoginRoute>, res: Fastif
 
     res.setCookie('sid', session.getId(), getAuthCookieOptions(req));
 
-    console.log('-------------')
-    console.log(account)
-
     res.code(200).send({ user: mapAccountEntityToApiObject(account) });
 };
 

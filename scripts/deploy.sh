@@ -2,5 +2,5 @@
 
 npm run build
 
-docker build --platform=linux/amd64 -t talarbatov/psynth-auth-service .
-docker push talarbatov/psynth-auth-service:latest
+docker build --platform=linux/amd64 -t talarbatov/psynth-identity-service .
+docker push talarbatov/psynth-identity-service:latest

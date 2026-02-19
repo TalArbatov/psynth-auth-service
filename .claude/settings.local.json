@@ -9,7 +9,11 @@
       "Bash(/Users/tal/dev/psyth-account-service/scripts/create-account.sh:*)",
       "Bash(chmod:*)",
       "Bash(npx drizzle-kit generate:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(npm test:*)",
+      "Bash(node:*)",
+      "Bash(timeout 20 npm start:*)",
+      "Bash(echo:*)"
     ]
   }
 }
