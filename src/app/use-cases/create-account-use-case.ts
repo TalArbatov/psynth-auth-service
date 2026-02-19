@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { AccountEntity } from "../entities/account-entity";
 import { AccountEntityGateway } from "../ports/account-entity-gateway";
+import { DuplicateEmailError } from "../errors/account-errors";
 
 const SALT_ROUNDS = 10;
 
@@ -20,6 +21,11 @@ class CreateAccountUseCase {
 
     async execute(input: CreateAccountInput): Promise<AccountEntity> {
         const { username, password, email, activeFlag = true } = input;
+
+        const existingAccount = await this.accountEntityGateway.findByEmail(email);
+        if (existingAccount) {
+            throw new DuplicateEmailError();
+        }
 
         const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 

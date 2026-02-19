@@ -6,7 +6,7 @@ import {
 } from "./server-error";
 
 // Import your domain errors
-import { InvalidAmountError, AccountBlockedError, ResourceNotFoundError, InvalidCredentialsError } from '../../app/errors/account-errors';
+import { InvalidAmountError, AccountBlockedError, ResourceNotFoundError, InvalidCredentialsError, DuplicateEmailError } from '../../app/errors/account-errors';
 import { InvalidTransactionAmountError } from "../../app/errors/transaction-errors";
 
 /**
@@ -57,6 +57,10 @@ export function mapDomainErrorToServerError(err: DomainError): ServerError {
 
     // 409 - conflicts / invalid state transitions
     if (err instanceof AccountBlockedError) {
+        return new ConflictError(err.message);
+    }
+
+    if (err instanceof DuplicateEmailError) {
         return new ConflictError(err.message);
     }
 

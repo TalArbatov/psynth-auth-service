@@ -20,7 +20,7 @@ services:
       - api-net
 
   app:
-    container_name: psynth-app
+    container_name: psynth-auth-service-container
     build: .
     ports:
       - "3050:3050"

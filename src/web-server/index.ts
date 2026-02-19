@@ -4,6 +4,8 @@ import { createServer } from "./server";
 const main = async () => {
     const port = Config.get('web-server.port') || 80;
 
+    await Config.verifyPostgresConnection();
+
     const app = await createServer();
 
     app.listen({
@@ -12,6 +14,9 @@ const main = async () => {
     }, () => {
         console.log(`listening on port ${port}`);
     });
-}
+};
 
-main();
+main().catch((error) => {
+    console.error("Fatal startup error:", error);
+    process.exit(1);
+});

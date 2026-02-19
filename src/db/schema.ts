@@ -12,23 +12,13 @@ export const accounts = pgTable("accounts", {
 
 export const loginSessions = pgTable("login_sessions", {
     id: varchar("id", { length: 64 }).primaryKey(),
-    userId: varchar("user_id", { length: 16 }).notNull().references(() => accounts.id),
+    accountId: varchar("account_id", { length: 16 }).notNull().references(() => accounts.id),
     ip: varchar("ip", { length: 45 }),
     userAgent: text("user_agent"),
     createdAt: timestamp("created_at").defaultNow(),
     expiresAt: timestamp("expires_at").notNull(),
     revokedAt: timestamp("revoked_at"),
 }, (table) => ([
-    index("idx_login_sessions_user_id").on(table.userId),
+    index("idx_login_sessions_account_id").on(table.accountId),
 ]));
 
-
-
-export const presets = pgTable("presets", {
-    id: varchar("id", { length: 64 }).primaryKey(),
-    accountId: varchar("account_id", { length: 16 }).notNull().references(() => accounts.id),
-    ip: varchar("ip", { length: 45 }),
-    data: jsonb("data"),
-    createdAt: timestamp("created_at").defaultNow(),
-    expiresAt: timestamp("expires_at").notNull(),
-});

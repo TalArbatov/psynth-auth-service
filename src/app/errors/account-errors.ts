@@ -47,3 +47,11 @@ export class InvalidCredentialsError extends DomainError {
         this.name = "InvalidCredentialsError";
     }
 }
+
+export class DuplicateEmailError extends DomainError {
+    public readonly code = "DUPLICATE_EMAIL";
+    constructor() {
+        super("Email is already in use.");
+        this.name = "DuplicateEmailError";
+    }
+}

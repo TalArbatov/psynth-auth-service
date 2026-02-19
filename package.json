@@ -1,9 +1,9 @@
 {
-    "name": "psynth-account-service",
+    "name": "psynth-authentication-service",
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "start": "node dist/web-server",
+        "start": "DOTENV_PATH=.env.production NODE_ENV=production node dist/web-server",
         "build": "rm -rf dist && tsc",
         "dev": "concurrently \"tsc --watch\" \"nodemon dist/web-server\"",
         "test": "vitest run",
@@ -11,6 +11,8 @@
         "coverage": "vitest run --coverage",
         "deploy": "./scripts/deploy.sh",
         "db:migrate": "drizzle-kit migrate",
+        "db:migrate:prod": "DOTENV_PATH=.env.production drizzle-kit migrate",
+        "db:reset-local": "ALLOW_LOCAL_DB_RESET=true node ./scripts/db/reset-local-migrations.js",
         "db:push": "drizzle-kit push",
         "db:generate": "drizzle-kit generate",
         "db:studio": "drizzle-kit studio"
@@ -18,7 +20,7 @@
     "keywords": [],
     "author": "Tal Arbetov",
     "license": "MIT",
-    "description": "Psynth Account Service",
+    "description": "Psynth Authentication Service",
     "devDependencies": {
         "@types/bcrypt": "^6.0.0",
         "@types/config": "^3.3.5",

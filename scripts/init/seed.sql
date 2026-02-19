@@ -14,11 +14,11 @@ CREATE TABLE accounts (
 
 CREATE TABLE "login_sessions" (
     id VARCHAR(64) PRIMARY KEY,
-    user_id VARCHAR(16) NOT NULL REFERENCES accounts(id),
+    account_id VARCHAR(16) NOT NULL REFERENCES accounts(id),
     ip VARCHAR(45),
     user_agent TEXT,
     created_at TIMESTAMP DEFAULT NOW(),
     expires_at TIMESTAMP NOT NULL,
     revoked_at TIMESTAMP
 );
-CREATE INDEX idx_login_sessions_user_id ON "loginSessions"(user_id);
+CREATE INDEX idx_login_sessions_account_id ON "login_sessions"(account_id);

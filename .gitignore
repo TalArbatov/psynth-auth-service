@@ -6,3 +6,4 @@ dist
 
 TODO
 coverage
+.env*

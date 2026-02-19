@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply, RouteGenericInterface } from 'fastify';
 import { mapAccountEntityToApiObject, AccountApiObject } from '../../adapters/mappers/account-entity';
+import { getAuthCookieOptions } from "../utils/auth-cookie";
 
 interface RequestBody {
     username: string;
@@ -13,14 +14,6 @@ interface AuthRegisterRoute extends RouteGenericInterface {
         201: { user: AccountApiObject }
     }
 }
-
-const COOKIE_OPTIONS = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
-    path: '/',
-    maxAge: 7 * 24 * 60 * 60,
-};
 
 const authRegisterHandler = async (req: FastifyRequest<AuthRegisterRoute>, res: FastifyReply<AuthRegisterRoute>) => {
     const { username, email, password } = req.body;
@@ -41,7 +34,7 @@ const authRegisterHandler = async (req: FastifyRequest<AuthRegisterRoute>, res: 
         userAgent: req.headers['user-agent'],
     });
 
-    res.setCookie('sid', session.getId(), COOKIE_OPTIONS);
+    res.setCookie('sid', session.getId(), getAuthCookieOptions(req));
     res.code(201).send({ user: mapAccountEntityToApiObject(account) });
 };
 

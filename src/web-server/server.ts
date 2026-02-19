@@ -7,7 +7,6 @@ import { AppProfile } from "./app-profile/app-profile";
 import sensible from "@fastify/sensible";
 import { errorHandlerPlugin } from "./plugins/error-handler";
 import { requireAuth } from "./plugins/require-auth";
-import cors from '@fastify/cors'
 import cookie from "@fastify/cookie";
 
 
@@ -52,33 +51,22 @@ const registerAppProfile = (app: FastifyInstance, appProfile: AppProfile): void 
 };
 
 const registerPlugins = async (app: FastifyInstance): Promise<void> => {
-    await app.register(cors, {
-        origin: (origin, cb) => {
-            // allow non-browser tools (curl/postman) that send no Origin
-            if (!origin) return cb(null, true);
-
-            if (isAllowedOrigin(origin)) return cb(null, true);
-
-            cb(new Error("Not allowed by CORS"), false);
-        },
-        credentials: true,
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    });
-
-    // Defensive fallback: ensure CORS headers exist on all responses
-    // (including error/not-found flows) for explicitly allowed origins.
-    app.addHook("onSend", async (req, reply, payload) => {
+    app.addHook("onRequest", async (req: FastifyRequest, reply: FastifyReply) => {
         const origin = req.headers.origin;
-        if (!origin || !isAllowedOrigin(origin)) return payload;
 
-        if (!reply.hasHeader("Access-Control-Allow-Origin")) {
+        if (origin && isAllowedOrigin(origin)) {
             reply.header("Access-Control-Allow-Origin", origin);
-        }
-        if (!reply.hasHeader("Access-Control-Allow-Credentials")) {
             reply.header("Access-Control-Allow-Credentials", "true");
+            reply.header("Vary", "Origin");
         }
 
-        return payload;
+        reply.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+        reply.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+
+        if (req.method === "OPTIONS") {
+            reply.code(204).send();
+            return;
+        }
     });
 
     await app.register(sensible)

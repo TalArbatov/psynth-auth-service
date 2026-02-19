@@ -30,7 +30,7 @@ const Config = {
 
         const pool = new Pool({
             ...connectionConfig,
-            max: connectionConfig.max ?? 10, // max connections
+            max: connectionConfig.max ?? 10,
         });
 
         pool.on("connect", () => {
@@ -46,6 +46,11 @@ const Config = {
     getDrizzle: once((): DrizzleDB => {
         return drizzle(Config.getPostgresPool(), { schema });
     }),
+
+    verifyPostgresConnection: async (): Promise<void> => {
+        const pool = Config.getPostgresPool();
+        await pool.query("select 1");
+    },
 
     closePostgresPool: async (): Promise<void> => {
         const pool = Config.getPostgresPool();

@@ -9,7 +9,7 @@ type SessionRow = typeof loginSessions.$inferSelect;
 const mapRowToEntity = (row: SessionRow): SessionEntity => {
     return new SessionEntity({
         id: row.id,
-        accountId: row.userId,
+        accountId: row.accountId,
         ip: row.ip,
         userAgent: row.userAgent,
         createdAt: row.createdAt!,
@@ -28,7 +28,7 @@ class SessionPostgresEntityGateway implements SessionEntityGateway {
     async save(session: SessionEntity): Promise<void> {
         await this.db.insert(loginSessions).values({
             id: session.getId(),
-            userId: session.getAccountId(),
+            accountId: session.getAccountId(),
             ip: session.getIp(),
             userAgent: session.getUserAgent(),
             createdAt: session.getCreatedAt(),
