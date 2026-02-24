@@ -3,6 +3,7 @@ import config from "config";
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "../db/schema";
+import { logger } from "../logger";
 
 const once = <T>(cb: () => T): (() => T) => {
     let t: undefined | T;
@@ -34,10 +35,10 @@ const Config = {
         });
 
         pool.on("connect", () => {
-            console.log("Postgres pool connected");
+            logger.info("postgres pool connected");
         });
         pool.on("error", (err) => {
-            console.error("Unexpected Postgres pool error", err);
+            logger.error({ err }, "unexpected postgres pool error");
         });
 
         return pool;

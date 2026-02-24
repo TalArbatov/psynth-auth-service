@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import Fastify, { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
@@ -11,14 +12,15 @@ import sensible from "@fastify/sensible";
 import { errorHandlerPlugin } from "./plugins/error-handler";
 import { requireAuth } from "./plugins/require-auth";
 import cookie from "@fastify/cookie";
+import { loggerOptions } from "../logger";
 
 
 const LOCAL_DEV_ORIGIN_REGEX = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d{1,5})?$/;
 
 const allowed = new Set([
-    "http://psynth.talarbetov.com",
-    "http://talarbetov.com",
-    "http://www.talarbetov.com",
+    "https://psynth.talarbetov.com",
+    "https://talarbetov.com",
+    "https://www.talarbetov.com",
 ]);
 
 const isAllowedOrigin = (origin: string): boolean => {
@@ -105,10 +107,30 @@ const registerPlugins = async (app: FastifyInstance): Promise<void> => {
 
 const createServer = async (): Promise<FastifyInstance> => {
     const app = Fastify({
-        logger: true,
+        logger: loggerOptions,
+        disableRequestLogging: true,
+        genReqId: (req) =>
+            (req.headers["x-request-id"] as string) ?? crypto.randomUUID(),
         ajv: {
             customOptions: { keywords: ["example"] },
         },
+    });
+
+    app.addHook("onRequest", async (req) => {
+        req.log.debug({ method: req.method, url: req.url }, "request started");
+    });
+
+    app.addHook("onResponse", async (req, reply) => {
+        req.log.info(
+            {
+                method: req.method,
+                url: req.url,
+                statusCode: reply.statusCode,
+                responseTimeMs: reply.elapsedTime,
+                route: req.routeOptions?.url,
+            },
+            "request completed",
+        );
     });
 
     const config = { db: Config.getDrizzle() }

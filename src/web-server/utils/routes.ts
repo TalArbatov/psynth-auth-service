@@ -12,7 +12,6 @@ const routes = {
                 register: '/api/v1/accounts',     // POST
                 me: '/api/v1/accounts/me',        // GET, PATCH (optional)
             },
-
             // Auth (cookie/session-based)
             auth: {
                 login: '/api/v1/auth/login',      // POST

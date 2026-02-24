@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
-require("dotenv/config");
+if (process.env.DOTENV_PATH) {
+    require("dotenv").config({ path: process.env.DOTENV_PATH });
+} else {
+    require("dotenv/config");
+}
 
 const { execFileSync } = require("node:child_process");
 const { Client } = require("pg");
-
-const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost", "db", "psynth-pg"]);
 
 const requiredEnv = (name) => {
     const value = process.env[name];
@@ -15,30 +17,15 @@ const requiredEnv = (name) => {
     return value;
 };
 
-const assertSafeToRun = (host) => {
-    // if (process.env.ALLOW_LOCAL_DB_RESET !== "true") {
-    //     throw new Error("Refusing to run. Set ALLOW_LOCAL_DB_RESET=true.");
-    // }
-
-    // if (process.env.NODE_ENV === "production") {
-    //     throw new Error("Refusing to run in production.");
-    // }
-
-    // if (!LOCAL_HOSTS.has(host)) {
-    //     throw new Error(`Refusing to run against non-local host: ${host}`);
-    // }
-};
-
 const run = async () => {
     const host = requiredEnv("POSTGRESQL_HOST");
     const port = Number(requiredEnv("POSTGRESQL_PORT"));
     const user = requiredEnv("POSTGRESQL_USER");
     const password = requiredEnv("POSTGRESQL_PASSWORD");
     const database = requiredEnv("POSTGRESQL_DATABASE");
+    const ssl = process.env.POSTGRESQL_SSL === "true" ? { rejectUnauthorized: false } : false;
 
-    assertSafeToRun(host);
-
-    const client = new Client({ host, port, user, password, database, ssl: false });
+    const client = new Client({ host, port, user, password, database, ssl });
     await client.connect();
 
     try {
